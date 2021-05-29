@@ -1,6 +1,6 @@
 # ADVATK_arc
 
-To get the model verified on PC, please refer to test/ .
+To get the model verified on PC, please refer to `test/` .
 
 ## Getting Started With ARC Project
 
