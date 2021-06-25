@@ -109,92 +109,47 @@ void setup() {
   // Get information about the memory area to use for the model's input.
   input = interpreter->input(0);
   output = interpreter->output(0);
-  //TF_LITE_REPORT_ERROR(error_reporter, "INPUT TYPE: %d\n", input->type);
-  //TF_LITE_REPORT_ERROR(error_reporter, "OUTPUT TYPE: %d\n", output->type);
   // Obtain quantization parameters for result dequantization
 }
 
 // The name of this function is important for Arduino compatibility.
 void loop()
 {
-  int32_t test_cnt = 0;
-  int32_t correct_cnt = 0;
-  
-  float scale = input->params.scale;
-  int32_t zero_point = input->params.zero_point;
-  //TF_LITE_REPORT_ERROR(error_reporter, "ZERO POINT: %d", zero_point);
-  // Invoke interpreter for each test sample and process results
-  float total=0.;
+  float total=0.0;
+  float block_average = 0.0;
+  int count_clean=0;
   for (int j = 0; j < kNumSamples; j++) 
   {
-    float temp;
+    uint8_t temp;
     // Write image to input data
+    float image_input[kImageSize];
     for (int i = 0; i < kImageSize; i++) {
-      temp = (float)(test_samples[j].image[i])/255.0;   
-      input->data.f[i] = temp;
+      temp = test_samples[j].image[i];
+      *((float*)input->data.data + i*sizeof(float)) = image_input[i] = ((float)temp/255.0);
     }
 
-    TF_LITE_REPORT_ERROR(error_reporter, "Test sample[%d] Start Invoking\n", j);
     // Run the model on this input and make sure it succeeds.
     if (kTfLiteOk != interpreter->Invoke()) {
       TF_LITE_REPORT_ERROR(error_reporter, "Invoke failed.");
     }
-  
-    //TF_LITE_REPORT_ERROR(error_reporter, "Test sample[%d] Start Finding Max Value\n", j);
-    // Get max result from output array and calculate confidence
-    float* results_ptr = output->data.f;
-    int result = std::distance(results_ptr, std::max_element(results_ptr, results_ptr + 26));
-    float confidence = ((results_ptr[result] - zero_point)*scale + 1) / 2;
-    const char *status = result == test_samples[j].label ? "SUCCESS" : "FAIL";
-
-    if(result == test_samples[j].label)
-      correct_cnt ++;
-    test_cnt ++;
-
-    TF_LITE_REPORT_ERROR(error_reporter, 
-      "Test sample \"%s\":\n"
-      "Predicted %s (%d%%) - %s\n",
-      kCategoryLabels[test_samples[j].label], 
-      kCategoryLabels[result], (int)(confidence * 100), status);
-
-    
-    TF_LITE_REPORT_ERROR(error_reporter, "Test sample[%d] Start Reading\n", j);
-    // Write image to input data
-    for (int i = 0; i < kImageSize; i++) {
-      temp = (float)(test_samples[j].image[i])/255.0;
-      input->data.f[i] = temp;
-    }
-
-    TF_LITE_REPORT_ERROR(error_reporter, "Test sample[%d] Start Invoking\n", j);
-    // Run the model on this input and make sure it succeeds.
-    if (kTfLiteOk != interpreter->Invoke()) {
-      TF_LITE_REPORT_ERROR(error_reporter, "Invoke failed.");
-    }
-  
-    //TF_LITE_REPORT_ERROR(error_reporter, "Test sample[%d] Start Finding Max Value\n", j);
-    // Get max result from output array and calculate confidence
-    results_ptr = output->data.f;
-    result = std::distance(results_ptr, std::max_element(results_ptr, results_ptr + 26));
-    confidence = ((results_ptr[result] - zero_point)*scale + 1) / 2;
-    status = result == test_samples[j].label ? "SUCCESS" : "FAIL";
-
-    if(result == test_samples[j].label)
-      correct_cnt ++;
-    test_cnt ++;
-
-    TF_LITE_REPORT_ERROR(error_reporter, 
-      "Test sample \"%s\":\n"
-      "Predicted %s (%d%%) - %s\n",
-      kCategoryLabels[test_samples[j].label], 
-      kCategoryLabels[result], (int)(confidence * 100), status);
+    float* results_ptr = (float*)output->data.data;
     float sum = 0.0;
-    for(int i=0;i<1600;i++){
-    	sum += results_ptr[i];
-    	total += results_ptr[i];	
+    float part;
+    for(int i=0;i<kImageSize;i++){
+      part = results_ptr[i] - image_input[i];
+      part = part * part ;
+      sum += part;
+      total += part;
     }
-    TF_LITE_REPORT_ERROR(error_reporter, "AVERAGE = %d", (int)(sum*10));
-    TF_LITE_REPORT_ERROR(error_reporter, "Test sample[%d] Finsih\n\n", j);
+    block_average += sum/1600;
+    if(sum/1600 < 0.08)
+    	count_clean += 1;
+    TF_LITE_REPORT_ERROR(error_reporter, "Block sum = %f", sum);
+
   }
-  TF_LITE_REPORT_ERROR(error_reporter, "TOTAL = %d", (int)(total*10));
+
+  TF_LITE_REPORT_ERROR(error_reporter, "TOTAL = %d", (int)(total*100));
+  TF_LITE_REPORT_ERROR(error_reporter, "Block Average = %d", (int)((block_average/192)*100000));
+  TF_LITE_REPORT_ERROR(error_reporter, "Count_clean = %d", count_clean);
   while(1);
 }

@@ -9,8 +9,8 @@
 #ifndef MODEL_SETTINGS_H_
 #define MODEL_SETTINGS_H_
 
-constexpr int kNumCols = 28;
-constexpr int kNumRows = 28;
+constexpr int kNumCols = 40;
+constexpr int kNumRows = 40;
 constexpr int kNumChannels = 1;
 
 constexpr int kImageSize = kNumCols * kNumRows * kNumChannels;
