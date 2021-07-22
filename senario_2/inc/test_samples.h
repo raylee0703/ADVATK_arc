@@ -16,4 +16,4 @@ struct TestSample {
 };
 
 extern const int kNumSamples;
-extern  TestSample test_samples[];
+extern const TestSample test_samples[];
