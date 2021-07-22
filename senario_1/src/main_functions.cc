@@ -27,8 +27,18 @@ limitations under the License.
 #include "model_settings.h"
 #include "model.h"
 #include "test_samples.h"
+#include "hx_drv_tflm.h"
+//#include "synopsys_wei_delay.h"
 
+#include "stdio.h"
+#include "string.h"
 // Globals, used for compatibility with Arduino-style sketches.
+
+uint8_t string_buf[100] = "test\n";
+uint8_t image_buf[320*240+1];
+
+hx_drv_sensor_image_config_t pimg_config;
+
 namespace {
 tflite::ErrorReporter* error_reporter = nullptr;
 const tflite::Model* model = nullptr;
@@ -61,8 +71,7 @@ void setup() {
   // copying or parsing, it's a very lightweight operation.
   model = tflite::GetModel(magnet_tflite);
   if (model->version() != TFLITE_SCHEMA_VERSION) {
-    TF_LITE_REPORT_ERROR(error_reporter,
-                         "Model provided is schema version %d not equal "
+    hx_drv_uart_print("Model provided is schema version %d not equal "
                          "to supported version %d.",
                          model->version(), TFLITE_SCHEMA_VERSION);
     return;
@@ -102,7 +111,7 @@ void setup() {
   // Allocate memory from the tensor_arena for the model's tensors.
   TfLiteStatus allocate_status = interpreter->AllocateTensors();
   if (allocate_status != kTfLiteOk) {
-    TF_LITE_REPORT_ERROR(error_reporter, "AllocateTensors() failed");
+    hx_drv_uart_print("AllocateTensors() failed");
     return;
   }
 
@@ -115,9 +124,62 @@ void setup() {
 // The name of this function is important for Arduino compatibility.
 void loop()
 {
+
+  uint8_t key_data = '\0';
+  hx_drv_uart_initial(UART_BR_57600);
+
+  //sensor start capture and start streaming
+  if(hx_drv_sensor_initial(&pimg_config) == HX_DRV_LIB_PASS);
+  
+  uint8_t * img_ptr;
+  int count=0;
+  while (1) 
+  {
+    hx_drv_uart_getchar(&key_data);
+    if(key_data == 'A')
+    {   
+      if(hx_drv_sensor_capture(&pimg_config) == HX_DRV_LIB_PASS)
+      {
+        
+        hx_drv_uart_print("S");
+        
+        img_ptr = (uint8_t *) pimg_config.raw_address;
+        
+        for(uint32_t height_cnt = 0; height_cnt < pimg_config.img_height; height_cnt+=2)
+        {
+          for(uint32_t width_cnt = 0; width_cnt < pimg_config.img_width; width_cnt+=2)
+          {
+            hx_drv_uart_print("%c", *img_ptr);
+            image_buf[count] = *img_ptr;
+            img_ptr = img_ptr + 2;
+            count++;
+          }
+        }
+        image_buf[320*240] = '\0';
+      }
+      break;
+    }
+    key_data = '\0';
+  }
+
+
   float total=0.0;
   float block_average = 0.0;
   int count_clean=0;
+
+  int k, l, m, n, block_no=0;
+  for(k=0;k<6;k++){
+    for(l=0;l<8;l++){
+      for(m=0;m<40;m++){
+        for(n=0;n<40;n++){
+          test_samples[block_no].image[n+40*m] = img_ptr[n+320*m+40*l+12800*k];
+        }
+      }
+      block_no++;
+    }
+  }
+
+
   for (int j = 0; j < kNumSamples; j++) 
   {
     uint8_t temp;
@@ -130,7 +192,7 @@ void loop()
 
     // Run the model on this input and make sure it succeeds.
     if (kTfLiteOk != interpreter->Invoke()) {
-      TF_LITE_REPORT_ERROR(error_reporter, "Invoke failed.");
+      hx_drv_uart_print("Invoke failed.");
     }
     float* results_ptr = (float*)output->data.data;
     float sum = 0.0;
@@ -144,12 +206,13 @@ void loop()
     block_average += sum/1600;
     if(sum/1600 < 0.08)
     	count_clean += 1;
-    TF_LITE_REPORT_ERROR(error_reporter, "Block sum = %f", sum);
+    //hx_drv_uart_print("Block sum = %f", sum);
+    hx_drv_uart_print("Block number: %2d", j);
 
   }
 
-  TF_LITE_REPORT_ERROR(error_reporter, "TOTAL = %d", (int)(total*100));
-  TF_LITE_REPORT_ERROR(error_reporter, "Block Average = %d", (int)((block_average/192)*100000));
-  TF_LITE_REPORT_ERROR(error_reporter, "Count_clean = %d", count_clean);
+  //hx_drv_uart_print("TOTAL = %d", (int)(total*100));
+  //hx_drv_uart_print("Block Average = %d", (int)((block_average/192)*100000));
+  hx_drv_uart_print("Count clean = %2d", count_clean);
   while(1);
 }

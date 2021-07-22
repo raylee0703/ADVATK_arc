@@ -4,7 +4,7 @@
 #ARC_TOOLCHAIN ?= mwdt
 ARC_TOOLCHAIN ?= gnu
 
-ROOT_PATH = ./../../..
+ROOT_PATH = ./../..
 HIMAX_PATH = $(ROOT_PATH)/himax_tflm
 INC_PATH = ./inc
 SRC_PATH = ./src
