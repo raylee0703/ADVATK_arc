@@ -27,12 +27,8 @@ limitations under the License.
 #include "model_settings.h"
 #include "model.h"
 #include "test_samples.h"
-#include "hx_drv_tflm.h"
+
 // Globals, used for compatibility with Arduino-style sketches.
-
-uint8_t string_buf[100] = "test\n";
-uint8_t image_buf[320*240+1];
-
 namespace {
 tflite::ErrorReporter* error_reporter = nullptr;
 const tflite::Model* model = nullptr;
@@ -65,7 +61,8 @@ void setup() {
   // copying or parsing, it's a very lightweight operation.
   model = tflite::GetModel(magnet_tflite);
   if (model->version() != TFLITE_SCHEMA_VERSION) {
-    hx_drv_uart_print("Model provided is schema version %d not equal "
+    TF_LITE_REPORT_ERROR(error_reporter,
+                         "Model provided is schema version %d not equal "
                          "to supported version %d.",
                          model->version(), TFLITE_SCHEMA_VERSION);
     return;
@@ -105,7 +102,7 @@ void setup() {
   // Allocate memory from the tensor_arena for the model's tensors.
   TfLiteStatus allocate_status = interpreter->AllocateTensors();
   if (allocate_status != kTfLiteOk) {
-    hx_drv_uart_print("AllocateTensors() failed");
+    TF_LITE_REPORT_ERROR(error_reporter, "AllocateTensors() failed");
     return;
   }
 
@@ -118,14 +115,9 @@ void setup() {
 // The name of this function is important for Arduino compatibility.
 void loop()
 {
-  
-  uint8_t key_data = '\0';
-  hx_drv_uart_initial(UART_BR_57600);
-  
   float total=0.0;
   float block_average = 0.0;
   int count_clean=0;
-
   for (int j = 0; j < kNumSamples; j++) 
   {
     uint8_t temp;
@@ -138,7 +130,7 @@ void loop()
 
     // Run the model on this input and make sure it succeeds.
     if (kTfLiteOk != interpreter->Invoke()) {
-      hx_drv_uart_print("Invoke failed.");
+      TF_LITE_REPORT_ERROR(error_reporter, "Invoke failed.");
     }
     float* results_ptr = (float*)output->data.data;
     float sum = 0.0;
@@ -151,13 +143,16 @@ void loop()
     }
     block_average += sum/1600;
     if(sum/1600 < 0.08)
-    	count_clean += 1;
-    hx_drv_uart_print("Block number: %2d", j);
+      count_clean += 1;
+    TF_LITE_REPORT_ERROR(error_reporter, "Block sum = %f", sum);
 
   }
-
-  //hx_drv_uart_print("TOTAL = %d", (int)(total*100));
-  //hx_drv_uart_print("Block Average = %d", (int)((block_average/192)*100000));
-  hx_drv_uart_print("Count clean = %2d", count_clean);
+  TF_LITE_REPORT_ERROR(error_reporter, "Count_clean = %d", count_clean);
+  if(count_clean > 20){
+    TF_LITE_REPORT_ERROR(error_reporter, "Result: Clean\n");
+  }
+  else{
+    TF_LITE_REPORT_ERROR(error_reporter, "Result: Attacked\n");
+  }
   while(1);
 }
