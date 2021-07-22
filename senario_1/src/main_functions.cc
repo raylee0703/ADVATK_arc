@@ -98,10 +98,10 @@ void setup() {
   micro_op_resolver.AddLogistic();
   micro_op_resolver.AddAveragePool2D();
   micro_op_resolver.AddResizeNearestNeighbor();
-  micro_op_resolver.AddQuantize();  
+  micro_op_resolver.AddQuantize();
   micro_op_resolver.AddSplit();
   micro_op_resolver.AddDequantize();
-    
+
   // Build an interpreter to run the model with.
   // NOLINTNEXTLINE(runtime-global-variables)
   static tflite::MicroInterpreter static_interpreter(
@@ -130,21 +130,20 @@ void loop()
 
   //sensor start capture and start streaming
   if(hx_drv_sensor_initial(&pimg_config) == HX_DRV_LIB_PASS);
-  
   uint8_t * img_ptr;
   int count=0;
-  while (1) 
+  while (1)
   {
     hx_drv_uart_getchar(&key_data);
     if(key_data == 'A')
-    {   
+    {
       if(hx_drv_sensor_capture(&pimg_config) == HX_DRV_LIB_PASS)
       {
-        
+
         hx_drv_uart_print("S");
-        
+
         img_ptr = (uint8_t *) pimg_config.raw_address;
-        
+
         for(uint32_t height_cnt = 0; height_cnt < pimg_config.img_height; height_cnt+=2)
         {
           for(uint32_t width_cnt = 0; width_cnt < pimg_config.img_width; width_cnt+=2)
@@ -180,7 +179,7 @@ void loop()
   }
 
 
-  for (int j = 0; j < kNumSamples; j++) 
+  for (int j = 0; j < kNumSamples; j++)
   {
     uint8_t temp;
     // Write image to input data

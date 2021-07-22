@@ -89,10 +89,10 @@ void setup() {
   micro_op_resolver.AddLogistic();
   micro_op_resolver.AddAveragePool2D();
   micro_op_resolver.AddResizeNearestNeighbor();
-  micro_op_resolver.AddQuantize();  
+  micro_op_resolver.AddQuantize();
   micro_op_resolver.AddSplit();
   micro_op_resolver.AddDequantize();
-    
+
   // Build an interpreter to run the model with.
   // NOLINTNEXTLINE(runtime-global-variables)
   static tflite::MicroInterpreter static_interpreter(
@@ -118,7 +118,7 @@ void loop()
   float total=0.0;
   float block_average = 0.0;
   int count_clean=0;
-  for (int j = 0; j < kNumSamples; j++) 
+  for (int j = 0; j < kNumSamples; j++)
   {
     uint8_t temp;
     // Write image to input data
