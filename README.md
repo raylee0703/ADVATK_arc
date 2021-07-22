@@ -24,9 +24,20 @@ $ python3 onnx_to_tfilte.py
 ```
 ### To use the system for senario 1:
 ```
+$ cd senario_1
 $ make
 $ make flash
 load *.img into the board
 press the "reset" button 
 $ python3 recv_img.py
+```
+### To use the system for senario 2:
+```
+$ cd senario_2
+copy one of test_sample from test_samples/ to src/
+$ make
+$ make flash
+load *.img into the board
+$ screen /dev/ttyUSB0 115200  # get the result
+verify the result using YOLO model with the images in test_sample_images/
 ```
