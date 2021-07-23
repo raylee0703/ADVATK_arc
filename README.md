@@ -9,9 +9,6 @@ In this project, we design a system of obeject detection intending for self-driv
 ### Senario 2: Attacked data loaded with model
 ![](https://i.imgur.com/wlCFlDb.png)
 
-## Model Verification
-To get the model verified on PC, please refer to `test/` .
-
 ## HW/SW Setup
 1. Install [Edge Impulse CLI](https://docs.edgeimpulse.com/docs/cli-installation)
 2. Install [ARC GNU ToolChain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases)
@@ -21,16 +18,7 @@ To get the model verified on PC, please refer to `test/` .
 6. Connect the WE-I to the computer by USB cable
 
 ## User manual
-### To train the defense model for ARC dev board: 
-```
-$ cd model
-$ python3 train_autoencoder_for_arc.py
-```
-### To generate trained model file:
-```
-$ python3 convert_to_onnx.py
-$ python3 onnx_to_tfilte.py
-```
+
 ### To use the system for senario 1:
 1. `$ cd senario_1`
 2. Place tflite file under `checkpopints/` directory. Pretrained model file is available at https://drive.google.com/file/d/1OZqE7vJ8KH-Pt2yfjFHCvaPEqgmCetMN/view?usp=sharing
