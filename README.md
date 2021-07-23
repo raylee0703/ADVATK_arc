@@ -33,16 +33,17 @@ $ python3 onnx_to_tfilte.py
 ```
 ### To use the system for senario 1:
 1. `$ cd senario_1`
-2. `$ make`
-3. `$ make flash`
-4. `$ himax-flash-tool -f output_gnu.img`
-5. press the "reset" button on the board
-6. `$ python3 recv_img.py #receive image from the baord and run YOLO inference`
+2. Place tflite file under `checkpopints/` directory. Pretrained model file is available at https://drive.google.com/file/d/1OZqE7vJ8KH-Pt2yfjFHCvaPEqgmCetMN/view?usp=sharing
+3. `$ make`
+4. `$ make flash`
+5. `$ himax-flash-tool -f output_gnu.img`
+6. Press the "reset" button on the board
+7. `$ python3 arc_detect.py #receive image from the baord and run YOLO inference`
 ### To use the system for senario 2:
 1. `$ cd senario_2`
-2. copy one of test_sample from test_samples/ to src/
+2. Copy one of test_sample from test_samples/ to src/
 3. `$ make`
 4. `$ make flash`
 5. `$ himax-flash-tool -f output_gnu.img`
 6. `screen /dev/ttyUSB0 115200  #see the result`
-7. verify the result using YOLO model with the images in test_sample_images/
+7. Verify the result using YOLO model with the images in test_sample_images/
