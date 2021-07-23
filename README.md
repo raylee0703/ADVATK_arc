@@ -11,6 +11,11 @@ In this project, we design a system of obeject detection intending for self-driv
 ## Model Verification
 To get the model verified on PC, please refer to `test/` .
 
+## HW/SW Setup
+1. Install ARC GNU ToolChain
+2. Clone this repository to your local computer
+3. Connect the WE-I to the computer by USB cable
+
 ## Manual
 ### To train the defense model for ARC dev board: 
 ```
