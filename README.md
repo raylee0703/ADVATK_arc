@@ -2,6 +2,7 @@
 
 ## Introduction
 In this project, we design a system of obeject detection intending for self-driving car usage. The system is able to defense adversarial attack. The system can identify the inputs which are attacked and we use YOLO to verify the results.
+[demo video](https://drive.google.com/file/d/1AKKPc-QH2vZLM4rj__xob8UrC6t0MjXO/view)
 ## System Architecture
 ### Senario 1: Clean data captured by camera
 ![](https://i.imgur.com/sl9Xs3y.png)
