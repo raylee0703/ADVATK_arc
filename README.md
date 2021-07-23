@@ -12,11 +12,13 @@ In this project, we design a system of obeject detection intending for self-driv
 To get the model verified on PC, please refer to `test/` .
 
 ## HW/SW Setup
-1. Install ARC GNU ToolChain
-2. Clone this repository to your local computer
-3. Connect the WE-I to the computer by USB cable
+1. Install [ARC GNU ToolChain](https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain/releases)
+2. Donwlaod and Setup [SDK](https://github.com/foss-for-synopsys-dwc-arc-processors/arc_contest) 
+3. Clone this repository to your local computer
+4. Modify the `ROOT_PATH` in senario_1/Makefile and senario_2/Makefile
+5. Connect the WE-I to the computer by USB cable
 
-## Manual
+## User manual
 ### To train the defense model for ARC dev board: 
 ```
 $ cd model
@@ -28,21 +30,17 @@ $ python3 convert_to_onnx.py
 $ python3 onnx_to_tfilte.py
 ```
 ### To use the system for senario 1:
-```
-$ cd senario_1
-$ make
-$ make flash
-load *.img into the board
-press the "reset" button 
-$ python3 recv_img.py
-```
+1. `$ cd senario_1`
+2. `$ make`
+3. `$ make flash`
+4. `$ himax-flash-tool -f output_gnu.img`
+5. press the "reset" button on the board
+6. `$ python3 recv_img.py #receive image from the baord and run YOLO inference`
 ### To use the system for senario 2:
-```
-$ cd senario_2
-copy one of test_sample from test_samples/ to src/
-$ make
-$ make flash
-load *.img into the board
-$ screen /dev/ttyUSB0 115200  # get the result
-verify the result using YOLO model with the images in test_sample_images/
-```
+1. `$ cd senario_2`
+2. copy one of test_sample from test_samples/ to src/
+3. `$ make`
+4. `$ make flash`
+5. `$ himax-flash-tool -f output_gnu.img`
+6. `screen /dev/ttyUSB0 115200  #see the result`
+7. verify the result using YOLO model with the images in test_sample_images/
