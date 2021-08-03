@@ -161,7 +161,7 @@ void loop()
     key_data = '\0';
   }
 
-
+  img_ptr = (uint8_t *) pimg_config.raw_address;
   float total=0.0;
   float block_average = 0.0;
   int count_clean=0;
