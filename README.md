@@ -38,3 +38,4 @@ Considering some limitation of the development board, we demonstrate the system 
 5. `$ himax-flash-tool -f output_gnu.img`
 6. `screen /dev/ttyUSB0 115200  #see the result`
 7. Verify the result using YOLO model with the images in test_sample_images/
+###
